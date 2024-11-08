@@ -50,8 +50,6 @@ df = df[(df['dist_travel_km'] >= 1) & (df['dist_travel_km'] <= 130)]
 print(df.corr())
 
 # Features and target variable
-features = ['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude',
-            'passenger_count', 'hour', 'month', 'year', 'dayofweek', 'dist_travel_km']
 X = df.drop(["pickup_datetime","fare_amount"],axis=1)
 y = df['fare_amount']
 
