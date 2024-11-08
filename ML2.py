@@ -25,7 +25,7 @@ df['dropoff_longitude'] = df['dropoff_longitude'].fillna(df['dropoff_longitude']
 df['dropoff_latitude'] = df['dropoff_latitude'].fillna(df['dropoff_latitude'].mean())
 
 # Convert datetime and extract features
-df['pickup_datetime'] = pd.to_datetime(df['pickup_datetime'])
+df['pickup_datetime'] = pd.to_datetime(df['pickup_datetime'], errors='coerce')
 df['year'] = df.pickup_datetime.dt.year
 df['month'] = df.pickup_datetime.dt.month
 df['dayofweek'] = df.pickup_datetime.dt.dayofweek
