@@ -49,7 +49,7 @@ df = df[(df['dist_travel_km'] >= 1) & (df['dist_travel_km'] <= 130)]
 # Features and target variable
 features = ['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude',
             'passenger_count', 'hour', 'month', 'year', 'dayofweek', 'dist_travel_km']
-X = df[features]
+X = df.drop(["pickup_datetime","fare_amount"],axis=1)
 y = df['fare_amount']
 
 # Check for missing values in the features and handle them
