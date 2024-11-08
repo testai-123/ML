@@ -1,3 +1,11 @@
+"""
+Classification Analysis
+
+A. Implementation of Support Vector Machines (SVM) for classifying images of hand-
+written digits into their respective numerical classes (0 to 9).
+
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import datasets, svm, metrics
