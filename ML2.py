@@ -1,3 +1,14 @@
+"""
+Regression Analysis:(Any one)
+A. Predict the price of the Uber ride from a given pickup point to the agreed drop-off
+location. Perform following tasks:
+1. Pre-process the dataset.
+2. Identify outliers.
+3. Check the correlation.
+4. Implement linear regression and ridge, Lasso regression models.
+5. Evaluate the models and compare their respective scores like R2, RMSE, etc.
+"""
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,7 +20,7 @@ from geopy.distance import geodesic
 from sklearn.preprocessing import RobustScaler
 
 # Load and clean the dataset
-df = pd.read_csv("uber.csv").drop(['Unnamed: 0', 'key'], axis=1)
+df = pd.read_csv("/content/ML2.csv").drop(['Unnamed: 0', 'key'], axis=1)
 df['dropoff_longitude'] = df['dropoff_longitude'].fillna(df['dropoff_longitude'].median())
 df['dropoff_latitude'] = df['dropoff_latitude'].fillna(df['dropoff_latitude'].mean())
 
@@ -41,6 +52,11 @@ features = ['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff
 X = df[features]
 y = df['fare_amount']
 
+# Check for missing values in the features and handle them
+if X.isnull().any().any():
+    print("Missing values found in features, filling NaNs...")
+    X = X.fillna(X.median())  # Fill missing values with the median for each column
+
 # Scale the data using RobustScaler
 scaler = RobustScaler()
 X_scaled = scaler.fit_transform(X)
@@ -69,7 +85,7 @@ print("Ridge Regression R2 Score:", r2_score(y_test, ridge_pred))
 print("Lasso Regression R2 Score:", r2_score(y_test, lasso_pred))
 
 # Plotting the predictions
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(12, 10))
 plt.scatter(y_test, prediction, label='Linear Regression', alpha=0.5)
 plt.scatter(y_test, ridge_pred, label='Ridge Regression', alpha=0.5)
 plt.scatter(y_test, lasso_pred, label='Lasso Regression', alpha=0.5)
