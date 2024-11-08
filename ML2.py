@@ -19,8 +19,10 @@ from sklearn.metrics import r2_score, mean_squared_error
 from geopy.distance import geodesic
 from sklearn.preprocessing import RobustScaler
 
-# Load and clean the dataset
-df = pd.read_csv("/content/ML2.csv").drop(['Unnamed: 0', 'key'], axis=1)
+df = pd.read_csv("/content/ML2.csv")
+
+df = df.drop(["Unnamed: 0",	"key"],axis=1)
+
 df['dropoff_longitude'] = df['dropoff_longitude'].fillna(df['dropoff_longitude'].median())
 df['dropoff_latitude'] = df['dropoff_latitude'].fillna(df['dropoff_latitude'].mean())
 
@@ -30,6 +32,8 @@ df['year'] = df.pickup_datetime.dt.year
 df['month'] = df.pickup_datetime.dt.month
 df['dayofweek'] = df.pickup_datetime.dt.dayofweek
 df['hour'] = df.pickup_datetime.dt.hour
+
+
 
 # Remove rows with invalid latitude and longitude values
 df = df[(df['pickup_latitude'].between(-90, 90)) & (df['dropoff_latitude'].between(-90, 90))]
@@ -45,22 +49,14 @@ df['dist_travel_km'] = df.apply(calculate_distance, axis=1)
 
 # Remove outliers based on the distance
 df = df[(df['dist_travel_km'] >= 1) & (df['dist_travel_km'] <= 130)]
-
-# Get the correlation 
-print(df.corr())
-
-# Features and target variable
-X = df.drop(["pickup_datetime","fare_amount"],axis=1)
+df = df.drop("pickup_datetime", axis=1)
+x_data = df.drop("fare_amount",axis=1)
 y = df['fare_amount']
 
-# Check for missing values in the features and handle them
-if X.isnull().any().any():
-    print("Missing values found in features, filling NaNs...")
-    X = X.fillna(X.median())  # Fill missing values with the median for each column
+df.corr()
 
-# Scale the data using RobustScaler
 scaler = RobustScaler()
-X_scaled = scaler.fit_transform(X)
+X_scaled = scaler.fit_transform(x_data)
 
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=100)
