@@ -1,7 +1,6 @@
 """
-Clustering Analysis
-A. Implement K-Means clustering on Iris.csv dataset. Determine the number of clusters
-using the elbow method.
+Ensemble Learning
+A. Implement Random Forest Classifier model to predict the safety of the car.
 """
 
 import pandas as pd
