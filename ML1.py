@@ -1,34 +1,96 @@
+"""
+Regression Analysis:
+A. Predict the price of the Uber ride from a given pickup point to the agreed drop-off
+location. Perform following tasks:
+1. Pre-process the dataset.
+2. Identify outliers.
+3. Check the correlation.
+4. Implement linear regression and ridge, Lasso regression models.
+5. Evaluate the models and compare their respective scores like R2, RMSE, etc.
+"""
+
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.metrics import r2_score, mean_squared_error
+from geopy.distance import geodesic
+from sklearn.preprocessing import RobustScaler
 
-# Load the dataset
-df = pd.read_csv('/content/Wine.csv')
+# Load and clean the dataset
+df = pd.read_csv("ML2.csv").drop(['Unnamed: 0', 'key'], axis=1)
+df['dropoff_longitude'] = df['dropoff_longitude'].fillna(df['dropoff_longitude'].median())
+df['dropoff_latitude'] = df['dropoff_latitude'].fillna(df['dropoff_latitude'].mean())
 
-# Separate features and target variable
-X = df.drop('Customer_Segment', axis=1)
-y = df['Customer_Segment']
+# Convert datetime and extract features
+df['pickup_datetime'] = pd.to_datetime(df['pickup_datetime'])
+df['year'] = df.pickup_datetime.dt.year
+df['month'] = df.pickup_datetime.dt.month
+df['dayofweek'] = df.pickup_datetime.dt.dayofweek
+df['hour'] = df.pickup_datetime.dt.hour
 
-# Standardize the features
-X_standardized = StandardScaler().fit_transform(X)
+# Remove rows with invalid latitude and longitude values
+df = df[(df['pickup_latitude'].between(-90, 90)) & (df['dropoff_latitude'].between(-90, 90))]
+df = df[(df['pickup_longitude'].between(-180, 180)) & (df['dropoff_longitude'].between(-180, 180))]
 
-# Apply PCA to reduce dimensions to 2 components
-pca = PCA(n_components=2)
-X_pca = pca.fit_transform(X_standardized)
+# Calculate distance traveled using geopy
+def calculate_distance(row):
+    start = (row['pickup_latitude'], row['pickup_longitude'])
+    end = (row['dropoff_latitude'], row['dropoff_longitude'])
+    return geodesic(start, end).kilometers
 
-# Create a DataFrame with the PCA results and the target variable
-pca_df = pd.DataFrame(X_pca, columns=['PC1', 'PC2'])
-pca_df['Customer_Segment'] = y
+df['dist_travel_km'] = df.apply(calculate_distance, axis=1)
 
-# Plot the PCA results
-plt.figure(figsize=(8, 6))
-sns.scatterplot(x='PC1', y='PC2', hue='Customer_Segment', data=pca_df, palette='Set1')
-plt.title('PCA of Wine Dataset')
-plt.xlabel('Principal Component 1')
-plt.ylabel('Principal Component 2')
+# Remove outliers based on the distance
+df = df[(df['dist_travel_km'] >= 1) & (df['dist_travel_km'] <= 130)]
+
+# Features and target variable
+features = ['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude',
+            'passenger_count', 'hour', 'month', 'year', 'dayofweek', 'dist_travel_km']
+X = df[features]
+y = df['fare_amount']
+
+# Check for missing values in the features and handle them
+if X.isnull().any().any():
+    print("Missing values found in features, filling NaNs...")
+    X = X.fillna(X.median())  # Fill missing values with the median for each column
+
+# Scale the data using RobustScaler
+scaler = RobustScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=100)
+
+# Initialize Linear Regression Model
+regression = LinearRegression()
+regression.fit(X_train, y_train)
+prediction = regression.predict(X_test)
+
+# Initialize the Ridge Model
+ridge_reg = Ridge(alpha=1.0)
+ridge_reg.fit(X_train, y_train)
+ridge_pred = ridge_reg.predict(X_test)
+
+# Initialize the Lasso Model
+lasso_reg = Lasso(alpha=1.0)
+lasso_reg.fit(X_train, y_train)
+lasso_pred = lasso_reg.predict(X_test)
+
+# Error Evaluation
+print("Linear Regression R2 Score:", r2_score(y_test, prediction))
+print("Ridge Regression R2 Score:", r2_score(y_test, ridge_pred))
+print("Lasso Regression R2 Score:", r2_score(y_test, lasso_pred))
+
+# Plotting the predictions
+plt.figure(figsize=(12, 10))
+plt.scatter(y_test, prediction, label='Linear Regression', alpha=0.5)
+plt.scatter(y_test, ridge_pred, label='Ridge Regression', alpha=0.5)
+plt.scatter(y_test, lasso_pred, label='Lasso Regression', alpha=0.5)
+plt.xlabel('True Fare Amount')
+plt.ylabel('Predicted Fare Amount')
+plt.legend()
+plt.title('True vs Predicted Fare Amount')
 plt.show()
-
-# Print the explained variance of each principal component
-print('Explained Variance:', pca.explained_variance_ratio_)
