@@ -46,6 +46,9 @@ df['dist_travel_km'] = df.apply(calculate_distance, axis=1)
 # Remove outliers based on the distance
 df = df[(df['dist_travel_km'] >= 1) & (df['dist_travel_km'] <= 130)]
 
+# Get the correlation 
+print(df.corr())
+
 # Features and target variable
 features = ['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude',
             'passenger_count', 'hour', 'month', 'year', 'dayofweek', 'dist_travel_km']
