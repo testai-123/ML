@@ -58,6 +58,6 @@ plt.show()
 
 # Get Index from the User
 seq = int(input("Enter the Index : "))
-plt.imshow(X_test[seq].reshape(8, 8), cmap=plt.cm.gray_r)
+plt.imshow(X_test[seq].reshape(8, 8), cmap='gray')
 plt.title(f"Predicted : {y_pred[seq]}, Actual : {y_test[seq]}")
 plt.axis('on')
