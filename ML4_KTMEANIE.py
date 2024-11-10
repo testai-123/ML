@@ -1,9 +1,3 @@
-"""
-Clustering Analysis
-A. Implement K-Means clustering on Iris.csv dataset. Determine the number of clusters
-using the elbow method.
-"""
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
