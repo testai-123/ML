@@ -1,9 +1,3 @@
-"""
-Reinforcement Learning
-A. Implement Reinforcement Learning using an example of a maze environment that the
-agent needs to explore.
-"""
-
 import numpy as np
 import random
 
