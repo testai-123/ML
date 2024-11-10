@@ -1,8 +1,3 @@
-"""
-Ensemble Learning
-A. Implement Random Forest Classifier model to predict the safety of the car.
-"""
-
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
