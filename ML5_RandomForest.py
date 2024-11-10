@@ -1,42 +1,37 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
-# Define the parameter grid to search over
-param_grid = {
-    'n_estimators': [200],          # Number of trees
-    'max_depth': [None],          # Maximum depth of each tree
-    'min_samples_split': [5],          # Minimum samples required to split a node
-    'min_samples_leaf': [1],            # Minimum samples required at each leaf node
-    'max_features': ['sqrt']  # Number of features considered for splitting
-}
-#Best Parameters: {'max_depth': None, 'max_features': 'sqrt', 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 200}
+# Load the car evaluation dataset
+data = pd.read_csv("ML5.csv")
 
-# Initialize RandomForestClassifier
-rf_classifier = RandomForestClassifier(random_state=42)
+# Encoding all the string data
+data = data.apply(LabelEncoder().fit_transform)
 
-# Set up GridSearchCV
-grid_search = GridSearchCV(estimator=rf_classifier, param_grid=param_grid, 
-                           cv=5, n_jobs=-1, scoring='accuracy', verbose=2)
+# Define the features (X) and the target variable (y)
+X = data.drop("safety",axis=1)  # Features (all columns except the last one)
+y = data["safety"]   # Target variable (last column)
 
-# Fit GridSearchCV
-grid_search.fit(X_train, y_train)
+# Split the dataset into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=50)
 
-# Get the best parameters and train the classifier with them
-best_params = grid_search.best_params_
-print("Best Parameters:", best_params)
 
-# Train the model with the best parameters found
-best_rf_classifier = RandomForestClassifier(**best_params, random_state=42)
-best_rf_classifier.fit(X_train, y_train)
+# Create a Random Forest Classifier
+rf_classifier = RandomForestClassifier(n_estimators=300, random_state=42)
 
-# Make predictions and evaluate
-y_pred = best_rf_classifier.predict(X_test)
+# Train the classifier on the training data
+rf_classifier.fit(X_train, y_train)
+
+# Make predictions on the test data
+y_pred = rf_classifier.predict(X_test)
+
+# Evaluate the model
 accuracy = accuracy_score(y_test, y_pred)
 confusion = confusion_matrix(y_test, y_pred)
 classification_rep = classification_report(y_test, y_pred)
 
-# Display results
-print(f"Accuracy after Grid Search: {accuracy:.2f}")
+print(f"Accuracy: {accuracy}")
 print("\nConfusion Matrix:\n", confusion)
 print("\nClassification Report:\n", classification_rep)
