@@ -5,14 +5,14 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 # Load the car evaluation dataset
-data = pd.read_csv("ML5.csv")
+data = pd.read_csv("/content/DATA_ML_RF.csv")
 
 # Encoding all the string data
 data = data.apply(LabelEncoder().fit_transform)
 
 # Define the features (X) and the target variable (y)
-X = data.drop("safety",axis=1)  # Features (all columns except the last one)
-y = data["safety"]   # Target variable (last column)
+X = data.iloc[:, :-1]  # Features (all columns except the last one)
+y = data.iloc[:, -1]   # Target variable (last column)
 
 # Split the dataset into training and testing sets (80% train, 20% test)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=50)
